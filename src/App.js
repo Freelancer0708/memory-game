@@ -20,13 +20,15 @@ function App() {
 
   // カウントダウンタイマー
   useEffect(() => {
-    if(countdown > 0 && !gameOver) {
-      setTimeout(() => setCountdown(countdown - 1), 1000);
-    } else if (!gameOver) {
+    if(gameStarted && countdown > 0 && !gameOver) {
+      const timerId = setTimeout(() => setCountdown(countdown - 1), 1000);
+      return () => clearTimeout(timerId); // クリーンアップ関数
+    } else if (gameStarted && !gameOver && countdown === 0) {
       setGameOver(true);
       setMessage("ゲームオーバー");
     }
-  }, [countdown, gameOver]);
+  }, [countdown, gameStarted, gameOver]);
+
 
   // カードが2枚選択されたときに一致チェック
   useEffect(() => {
@@ -53,9 +55,9 @@ function App() {
   }, [matchedCards, cards, countdown]);
 
   const handleClick = (index) => {
-    if(checkedCards.length === 2 || gameOver || !gameStarted) return;
+    if(checkedCards.length === 2 || gameOver || !gameStarted || checkedCards.includes(index)) return;
     setCheckedCards([...checkedCards, index]);
-  }
+  }  
 
   const shuffle = (array) => {
     for (let i = array.length - 1; i > 0; i--) {
